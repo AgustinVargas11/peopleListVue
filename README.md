@@ -18,8 +18,10 @@ to install all the app dependencies
 to build the application
 
 ```
-    npm run serve to start up the server
+    npm run serve
 ```
+
+to start up the server
 
 Visit
 
