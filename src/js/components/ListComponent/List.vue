@@ -1,19 +1,17 @@
 <template>
-
     <nav class="panel">
         <p class="panel-heading">
             People
         </p>
         <div class="panel-block">
             <p class="control has-icon">
-                <input class="input is-small" type="text" placeholder="Search">
+                <input class="input is-small" type="text" placeholder="Search" v-model="search">
                 <span class="icon is-small">
-        <i class="fa fa-search"></i>
       </span>
             </p>
         </div>
         <div class="panel-content">
-            <a v-for="(person, index) in people" class="panel-block" @click="selectPerson(person, index)">
+            <a v-for="(person, index) in filteredPeople" class="panel-block" @click="selectPerson(person, index)">
                 <p>{{person.firstName}} {{person.lastName}}</p>
             </a>
         </div>
@@ -25,16 +23,17 @@
 </template>
 
 <script>
+    import request from '../../core/request';
 
     export default {
         data() {
             return {
-                people: []
+                people: [],
+                search: ''
             }
         },
         mounted() {
-            fetch('/api/person')
-                .then(response => response.json())
+            request('get', '/api/person')
                 .then(response => {
                     this.people = response;
                 })
@@ -52,14 +51,7 @@
                 this.people.push(person);
             },
             updatePerson(updatedPerson) {
-                fetch(`/api/person/${updatedPerson._id}`, {
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    method: 'put',
-                    body: JSON.stringify(updatedPerson)
-                })
-                    .then(response => response.json())
+                request('put', `/api/person/${updatedPerson._id}`, updatedPerson)
                     .then(response => {
                         let index = updatedPerson.index;
                         this.people.splice(index, 1, response);
@@ -71,15 +63,25 @@
                 Event.$emit('selectedPerson', { person, index });
             },
             deletePerson(person) {
-                fetch(`/api/person/${person._id}`, {
-                    method: 'delete'
-                })
-                    .then(response => {
-                        this.people.splice(person.index, 1);
-                        console.log(person);
+                let index = person.index;
+                request('delete', `/api/person/${person._id}`)
+                    .then(person => {
+                        console.log(index);
+                        this.people.splice(index, 1);
                         Event.$emit('notify', `${person.firstName} ${person.lastName} has been deleted`);
                     })
                     .catch(err => console.log(err));
+            }
+        },
+        computed: {
+            filteredPeople: function () {
+                const search = this.search.toLowerCase();
+                let name;
+
+                return this.people.filter(person => {
+                    name = `${person.firstName} ${person.lastName}`.toLocaleLowerCase();
+                    return name.includes(search)
+                });
             }
         }
     }

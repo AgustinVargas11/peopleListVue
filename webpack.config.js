@@ -5,7 +5,7 @@ let path = require('path');
 module.exports = {
 
     entry: {
-        bundle: './src/js/main.js',
+        bundle: ['./src/js/polyfill.js', './src/js/main.js'],
         vendor: ['vue', 'whatwg-fetch']
     },
 
