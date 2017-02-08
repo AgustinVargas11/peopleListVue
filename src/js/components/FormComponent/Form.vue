@@ -115,7 +115,7 @@
                     })
                     .then(person => {
                         if (person) {
-                            this.resetForm();
+                            this.form.reset();
                             setTimeout(() => {
                                 this.isLoading = false;
                                 Event.$emit('addToList', person)
@@ -124,14 +124,12 @@
                         }
                     })
                     .catch(err => {
-                        err.log
                         throw new Error(err.statusText);
                     });
             },
             collapse() {
                 this.isCollapsed = !this.isCollapsed;
                 this.buttonState = this.isCollapsed ? 'Expand' : 'Collapse';
-                console.log(this.buttonState);
             },
             handleClick(fn) {
                 this.form.reset();
